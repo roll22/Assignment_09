@@ -40,21 +40,28 @@ layers. You have to be able to start the application with either UI, without mak
 A faculty stores information about:
  Student:      <studentID>,        <name>.
  Discipline:   <disciplineID>,     <name>.
- Grade:        <disciplineID>,     <studentID>,        <grade_value>.
+ Grade:        <disciplineID>,     <studentID>,       <grade_value>.
 
 
 
 Create an application which allows to:
 1. Manage the list of students and available disciplines.
 The application must allow the user to
-add,
-remove,
-update,
+add,        error if exists
+remove,     error if not exists
+update,     error if not exits
 list
 both STUDENTS and DISCIPLINES.
 
 
 2. Grade students at a given discipline.
+ask for discipline
+    err if not found
+ask for name
+    err if not found
+ask for grades
+    err if not compliant
+
 Any student may receive ONE OR SEVERAL grades at any of the disciplines.
 DELETING a STUDENT also REMOVES their GRADES.
 Deleting a discipline deletes ALL grades at that discipline for ALL STUDENTS.
@@ -68,7 +75,7 @@ The search must work using  case-insensitive,
  All students failing at one or more disciplines (students having an average <5 for a discipline are
 considered to be failing)
  Students with the best school situation, sorted in descending order of their aggregated average
-(the average between their average grades per discipline).
+(the average between their average grades per discipline) by general average.
  All disciplines at which there is at least one grade, sorted in descending order of the average
 grade received by all students enrolled at that discipline.
 

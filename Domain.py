@@ -1,27 +1,30 @@
 # import tests.py
+import uuid
 
 
-class StudentError(Exception):
+class ServiceErr(Exception):
+    pass
+
+
+class StudentError(ServiceErr):
     def __init__(self, string):
         pass
 
 
-class DisciplineError(Exception):
+class DisciplineError(ServiceErr):
     def __init__(self, string):
         pass
 
 
-class GradeError(Exception):
+class GradeError(ServiceErr):
     def __init__(self, string):
         pass
 
 
 class Student:
-    ids = 0
 
     def __init__(self, name):
-        Student.ids += 1
-        self._id = Student.ids
+        self._id = uuid.uuid1().hex
         self.name = name
 
     @property
@@ -35,20 +38,17 @@ class Student:
         if not name.isalpha():
             raise StudentError('Name must be string')
         self._name = name
-
-
-try:
-    s = Student('123')
-except StudentError as stud_err:
-    print(stud_err.args[0])
-
-
+    """
+    def student_to_dict(self):
+        stud_dict = {
+            '_id': self._id,
+            'value': self.name
+        }
+    """
 class Discipline:
-    ids = 0
 
     def __init__(self, name):
-        Discipline.ids += 1
-        self._id = Discipline.ids
+        self._id = uuid.uuid1().hex
         self.name = name
 
     @property
