@@ -1,4 +1,6 @@
 import unittest
+
+from Service import StudentService, DisciplineService, GradeService, IOErr
 from repository import Repository, StudentRepository, DisciplineRepository, GradeRepository, RepoErr
 from Domain import Student, Discipline, Grade, StudentError, DisciplineError, GradeError
 
@@ -12,6 +14,7 @@ class DomainTest(unittest.TestCase):
             obj.name = 123
         with self.assertRaises(StudentError):
             obj.name = '123'
+        self.assertEqual(obj.get_id(), obj._id)
 
     def test_Discipline(self):
         obj = Discipline('Disciplina')
@@ -21,6 +24,7 @@ class DomainTest(unittest.TestCase):
             obj.name = 123
         with self.assertRaises(DisciplineError):
             obj.name = '123'
+        self.assertEqual(obj.get_id(), obj._id)
 
     def test_Grade(self):
         obj = Grade('stud_id', 'disc_id', 5)
@@ -36,6 +40,27 @@ class DomainTest(unittest.TestCase):
             obj.grade_value = StudentError('da')
         with self.assertRaises(GradeError):
             obj.grade_value = 11
+
+
+class ServiceTest(unittest.TestCase):
+    def test_StudentService(self):
+        obj = StudentService()
+        self.assertIsInstance(obj._repo, StudentRepository)
+        with self.assertRaises(IOErr):
+            obj.add('12sdf')
+        obj.add('marcus')
+        self.assertEqual(obj._repo._list[-1].name, 'marcus')
+        with self.assertRaises(IOErr):
+            obj.remove('12sdf')
+        obj.remove('marcus')
+
+    def test_DisciplineService(self):
+        obj = DisciplineService()
+        self.assertIsInstance(obj._repo, DisciplineRepository)
+        with self.assertRaises(IOErr):
+            obj.add('12sdf')
+        obj.add('marcus')
+        obj.remove('marcus')
 
 
 class RepoTest(unittest.TestCase):

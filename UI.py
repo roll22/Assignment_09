@@ -1,6 +1,5 @@
-from Service import Service, StudentService, DisciplineService, GradeService
+from Service import StudentService, DisciplineService, GradeService
 from sys import exit
-from Domain import Student, Discipline, Grade
 
 
 class IOErr(Exception):
@@ -58,16 +57,21 @@ class UI:
             raise IOErr('Bad Choice!')
         return raw_input
 
+    @staticmethod
+    def print_list(_list):
+        for obj in _list:
+            print(obj.name, obj.get_id())
+
     def add_menu(self):
         print('1.Add Student')
         print('2.Add Discipline')
         choice = input('>')
         if choice == '1':
-            name = input('input value > ')
-            # TODO call service function
+            name = input('input name>')
+            student_service.add(name=name)
         elif choice == '2':
-            name = input('input discipline > ')
-            # TODO call service function
+            name = input('input discipline>')
+            discipline_service.add(name=name)
         else:
             raise IOErr('Bad choice!')
 
@@ -77,10 +81,12 @@ class UI:
         choice = input('>')
         if choice == '1':
             name = input('Name>')
-            # TODO call service STUDENT remove by Name
+            stud_id = student_service.remove(name=name)
+            grade_service.remove_by_student_id(stud_id)
         elif choice == '2':
             discipline = input('Discipline>')
-            # TODO call service DISCIPLINE remove by Name
+            disc_id = discipline_service.remove(name=discipline)
+            grade_service.remove_by_discipline_id(disc_id)
         else:
             raise IOErr('Bad choice!')
 
@@ -90,16 +96,18 @@ class UI:
         choice = input('>')
         if choice == '1':
             name = input('Name>')
-            # TODO call service STUDENT Check by Name return no of results
-            # if > 0
-            # new_name = input('Input new value >')
-            # TODO call service STUDENT Update by Name
+            if student_service.count_occurence(name=name) > 0:
+                new_name = input('Input new value >')
+                student_service.update(name, new_name)
+            else:
+                raise IOErr("Student not found")
         elif choice == '2':
             name = input('Discipline >')
-            # TODO call service DISCIPLINE Check by Name return no of results
-            # if > 0
-            # new_name = input('Input new value >')
-            # TODO call service DISCIPLINE Update by Name
+            if discipline_service.count_occurence(name=name) > 0:
+                new_name = input('Input new value >')
+                discipline_service.update(name, new_name)
+            else:
+                raise IOErr("Discipline not found")
         else:
             raise IOErr('Bad choice!')
 
@@ -108,23 +116,31 @@ class UI:
         print('2.Display by Disciplines')
         choice = input('>')
         if choice == '1':
-            # TODO call service STUDENTS DISPLAY
-            pass
+            _list = student_service.display()
+            self.print_list(_list)
         elif choice == '2':
-            # TODO call service DISCIPLINES DISPLAY
-            pass
+            _list = discipline_service.display()
+            self.print_list(_list)
         else:
             raise IOErr('Bad choice!')
 
     def grade_menu(self):
         discipline = input('Discipline>')
-        # TODO check DISCIPLINE
-        # if == 1
-        # else raise
+        if not discipline_service.count_occurence(discipline) > 0:
+            raise IOErr('Discipline not Found!')
+        disc_id = None
+        for _discipline in discipline_service.display():
+            if _discipline.name == discipline:
+                disc_id = _discipline.get_id()
+                break
         name = input('Name>')
-        # TODO check STUDENT
-        # if == 1
-        # else raise
+        if not student_service.count_occurence(name) > 0:
+            raise IOErr('Student not Found!')
+        student_id = None
+        for student in student_service.display():
+            if student.name == name:
+                student_id = student.get_id()
+                break
         grades = input('Grades>')
         grades = grades.split()
         for idx, grade in enumerate(grades):
@@ -132,7 +148,7 @@ class UI:
                 grades[idx] = int(grade)
             except Exception:
                 raise IOErr('Bad Grades!')
-        # TODO call service GRADE at discipline, value: grades
+        grade_service.add(disc_id, student_id, grades)
 
     def search_menu(self):
         print('1.Search Students')
@@ -194,9 +210,9 @@ class UI:
         self.return_cmd(choice)()
 
 
-general_service = Service()
+# general_service = Service()
 student_service = StudentService()
 discipline_service = DisciplineService()
 grade_service = GradeService()
-ui = UI(general_service, student_service, discipline_service, grade_service)
+ui = UI(None, student_service, discipline_service, grade_service)
 ui.start()

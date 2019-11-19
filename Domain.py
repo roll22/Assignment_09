@@ -27,6 +27,9 @@ class Student:
         self._id = uuid.uuid1().hex
         self.name = name
 
+    def get_id(self):
+        return self._id
+
     @property
     def name(self):
         return self._name
@@ -38,6 +41,7 @@ class Student:
         if not name.isalpha():
             raise StudentError('Name must be string')
         self._name = name
+
     """
     def student_to_dict(self):
         stud_dict = {
@@ -45,11 +49,16 @@ class Student:
             'value': self.name
         }
     """
+
+
 class Discipline:
 
     def __init__(self, name):
         self._id = uuid.uuid1().hex
         self.name = name
+
+    def get_id(self):
+        return self._id
 
     @property
     def name(self):
