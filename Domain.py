@@ -1,4 +1,3 @@
-# import tests.py
 import uuid
 
 
@@ -42,6 +41,9 @@ class Student:
             raise StudentError('Name must be string')
         self._name = name
 
+    def __str__(self):
+        return self.name
+
     """
     def student_to_dict(self):
         stud_dict = {
@@ -71,6 +73,9 @@ class Discipline:
         if not name.isalpha():
             raise DisciplineError('Name must be string')
         self._name = name
+
+    def __str__(self):
+        return self.name
 
 
 class Grade:
@@ -116,3 +121,6 @@ class Grade:
     @discipline_id.setter
     def discipline_id(self, disc_id):
         self._discipline_id = disc_id
+
+    def __str__(self):
+        return str(self.grade_value)

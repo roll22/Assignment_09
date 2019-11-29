@@ -47,55 +47,20 @@ class Repository:
 class StudentRepository(Repository):
     def __init__(self):
         super().__init__()
-        self._list = [
-            Student('Joe'),
-            Student('Joea'),
-            Student('Joeb'),
-            Student('Joec'),
-            Student('Joed'),
-            Student('Joee'),
-            Student('Joef'),
-            Student('Joeg'),
-            Student('Joeh'),
-            Student('Joei'),
-        ]
 
 
 class DisciplineRepository(Repository):
     def __init__(self):
         super().__init__()
-        self._list = [
-            Discipline('Math'),
-            Discipline('Matha'),
-            Discipline('Mathb'),
-            Discipline('Mathc'),
-            Discipline('Mathd'),
-            Discipline('Mathe'),
-            Discipline('Mathf'),
-            Discipline('Mathg'),
-            Discipline('Mathh'),
-            Discipline('Mathi'),
-        ]
 
 
 class GradeRepository(Repository):
     def __init__(self):
         super().__init__()
-        self._list = [
-            Grade('joe_id', 'math_id', 1),
-            Grade('joe1_id', 'math1_id', 2),
-            Grade('joe2_id', 'math2_id', 3),
-            Grade('joe3_id', 'math3_id', 4),
-            Grade('joe4_id', 'math4_id', 5),
-            Grade('joe5_id', 'math5_id', 6),
-            Grade('joe6_id', 'math6_id', 7),
-            Grade('joe7_id', 'math7_id', 8),
-            Grade('joe8_id', 'math8_id', 9),
-            Grade('joe9_id', 'math9_id', 10),
-        ]
 
     def update(self, index, value):
         self._list[index].grade_value = value
+
 
 """
 # print(myclient.list_database_names())

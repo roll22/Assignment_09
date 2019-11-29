@@ -1,5 +1,6 @@
 from Domain import Student, Discipline
 from repository import StudentRepository, DisciplineRepository, GradeRepository, Grade
+import re
 
 
 class IOErr(Exception):
@@ -33,7 +34,6 @@ class StudentService:
                 stud_id = student.get_id()
                 self._repo.remove(index=idx)
                 return stud_id
-                # TODO take care of teests coverage
 
     def count_occurence(self, name):
         """
@@ -63,6 +63,14 @@ class StudentService:
     def display(self):
         return self._repo.get_list()
 
+    def search(self, match):
+        returns = []
+        _list = self._repo.get_list()
+        for idx, student in enumerate(_list):
+            if re.search(match, student.name, re.IGNORECASE):
+                returns.append([student.name, student.get_id()])
+        return returns
+
 
 class DisciplineService:
     def __init__(self):
@@ -91,8 +99,6 @@ class DisciplineService:
                 disc_id = discipline.get_id()
                 self._repo.remove(index=idx)
                 return disc_id
-                # TODO REMOVE GRADES! using disc_id
-                # take care of teests coveragedf
 
     def count_occurence(self, name):
         """
@@ -122,6 +128,14 @@ class DisciplineService:
     def display(self):
         return self._repo.get_list()
 
+    def search(self, match):
+        returns = []
+        _list = self._repo.get_list()
+        for idx, discipline in enumerate(_list):
+            if re.search(match, discipline.name, re.IGNORECASE) is not None:
+                returns.append([discipline.name, discipline.get_id()])
+        return returns
+
 
 class GradeService:
     def __init__(self):
@@ -134,9 +148,6 @@ class GradeService:
         """
         for grade in grades:
             self._repo.add(Grade(student_id, discipline_id, grade))
-            # for debugging
-            for obj in self._repo.get_list():
-                print(obj.student_id, obj.discipline_id, obj.grade_value)
 
     def remove_by_student_id(self, stud_id):
         _list = self._repo.get_list()
@@ -158,8 +169,128 @@ class GradeService:
             idx -= offset
             self._repo.remove(idx)
 
+    def display(self):
+        return self._repo.get_list()
+
 
 class Service:
-    def __init__(self):
-        self.undo_stack = []
-        self.redo_stack = []
+
+    def __init__(self, student_serv, discipline_serv, grade_serv):
+        self.student_service = student_serv
+        self.discipline_service = discipline_serv
+        self.grade_service = grade_serv
+
+    def initialize_repos(self):
+        names = [
+            "Andrei",
+            "Raul",
+            "Flaviu",
+            "Mirel",
+            "Marcel",
+            "Calutz",
+            "Dellutz",
+            "Kronos",
+            "Irina",
+            "Balaur",
+        ]
+        for name in names:
+            self.student_service.add(name)
+        disciplines = [
+            "Algebra",
+            "Analiza",
+            "FP",
+            "ASC",
+            "Logica",
+            "Geometrie",
+            "Sisteme",
+            "Cuantica",
+            "BazedeDate",
+            "Fotografie",
+        ]
+        for discipline in disciplines:
+            self.discipline_service.add(discipline)
+
+        for x in range(20):
+            import random
+            random_student = self.student_service.display()[random.randint(0, 9)].get_id()
+            random_discipline = self.discipline_service.display()[random.randint(0, 9)].get_id()
+            random_grade = random.randint(1, 10)
+            self.grade_service.add(discipline_id=random_discipline, student_id=random_student, grades=[random_grade])
+
+    def failing(self):
+        failed_students = []
+        _student_list = self.student_service.display()
+        _discipline_list = self.discipline_service.display()
+        _grade_list = self.grade_service.display()
+        for student in _student_list:
+            stud_id = student.get_id()
+            for discipline in _discipline_list:
+                disc_id = discipline.get_id()
+                sum_ = 0
+                count_ = 0
+                for grade in _grade_list:
+                    if grade.student_id == stud_id and grade.discipline_id == disc_id:
+                        sum_ += grade.grade_value
+                        count_ += 1
+                if count_ == 0:
+                    continue
+                if sum_ / count_ < 5:
+                    if student.name not in failed_students:
+                        failed_students.append([student, discipline, sum_ / count_])
+        return failed_students
+
+    def best_stats(self):
+        students = []
+        _student_list = self.student_service.display()
+        _discipline_list = self.discipline_service.display()
+        _grade_list = self.grade_service.display()
+        for student in _student_list:
+            stud_id = student.get_id()
+            averages = []
+            for discipline in _discipline_list:
+                disc_id = discipline.get_id()
+                sum_ = 0
+                count_ = 0
+                for grade in _grade_list:
+                    if grade.student_id == stud_id and grade.discipline_id == disc_id:
+                        sum_ += grade.grade_value
+                        count_ += 1
+                if count_ != 0:
+                    averages.append(sum_ / count_)
+            if len(averages) == 0:
+                continue
+            general_average = sum(averages) / len(averages)
+            students.append([student, general_average])
+        return sorted(students, key=lambda item: item[1], reverse=True)
+
+    def discipline_stats(self):
+        _student_list = self.student_service.display()
+        _discipline_list = self.discipline_service.display()
+        _grade_list = self.grade_service.display()
+        students_averages = []
+        for student in _student_list:
+            stud_id = student.get_id()
+            averages = []
+            for discipline in _discipline_list:
+                disc_id = discipline.get_id()
+                sum_ = 0
+                count_ = 0
+                for grade in _grade_list:
+                    if grade.student_id == stud_id and grade.discipline_id == disc_id:
+                        sum_ += grade.grade_value
+                        count_ += 1
+                if count_ == 0:
+                    continue
+                averages.append([discipline, sum_ / count_])
+            students_averages.extend(averages)
+        final_averages = []
+        for discipline in _discipline_list:
+            sum_ = 0
+            count_ = 0
+            for list_of_avgs in students_averages:
+                if discipline.get_id() == list_of_avgs[0].get_id():
+                    sum_ += list_of_avgs[1]
+                    count_ += 1
+            if count_ != 0:
+                final_averages.append([discipline, sum_ / count_])
+        return sorted(final_averages, key=lambda avg: avg[1], reverse=True)

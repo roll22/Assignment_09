@@ -1,5 +1,6 @@
-from Service import StudentService, DisciplineService, GradeService
+from Service import StudentService, DisciplineService, GradeService, Service
 from sys import exit
+import random
 
 
 class IOErr(Exception):
@@ -7,11 +8,12 @@ class IOErr(Exception):
 
 
 class UI:
-    def __init__(self, svc, stud_svc, disc_svc, grade_svc):
-        self._service = svc
+    def __init__(self, stud_svc, disc_svc, grade_svc):
         self._stud = stud_svc
         self._disc = disc_svc
         self._grad = grade_svc
+        self._service = Service(stud_svc, disc_svc, grade_svc)
+        self.service.initialize_repos()
 
     @property
     def service(self):
@@ -114,6 +116,7 @@ class UI:
     def display(self):
         print('1.Display by Students')
         print('2.Display by Disciplines')
+        print('3.Display by Grades')
         choice = input('>')
         if choice == '1':
             _list = student_service.display()
@@ -121,6 +124,9 @@ class UI:
         elif choice == '2':
             _list = discipline_service.display()
             self.print_list(_list)
+        elif choice == '3':
+            _list = grade_service.display()
+            self.print_grades(_list)
         else:
             raise IOErr('Bad choice!')
 
@@ -143,12 +149,12 @@ class UI:
                 break
         grades = input('Grades>')
         grades = grades.split()
-        for idx, grade in enumerate(grades):
-            try:
-                grades[idx] = int(grade)
-            except Exception:
-                raise IOErr('Bad Grades!')
-        grade_service.add(disc_id, student_id, grades)
+        try:
+            final_grades = list(int(value) for value in grades)
+            print(final_grades)
+        except Exception:
+            raise IOErr('Bad Grades!')
+        grade_service.add(disc_id, student_id, final_grades)
 
     def search_menu(self):
         print('1.Search Students')
@@ -156,23 +162,46 @@ class UI:
         choice = input('>')
         if choice == '1':
             search = input('>')
-            # TODO call service search
+            self.print_search(student_service.search(search))
         elif choice == '2':
             search = input('>')
-            # TODO call service search
+            self.print_search(discipline_service.search(search))
         else:
             raise IOErr('Bad Choice.')
+
+    @staticmethod
+    def print_search(printable_list):
+        for item in printable_list:
+            print(item[0], item[1])
+
+    def print_stats(self, _list):
+        for elem in _list:
+            printable = ''
+            for small_elem in elem:
+                printable += str(small_elem)
+                printable += ' '
+            print(printable)
+
+    def print_grades(self, _list):
+        for x in _list:
+            print("stud_id: " + str(x.student_id) +
+                  " disc_id: " + str(x.discipline_id)+
+                  " grade: " + str(x.grade_value))
 
     def statistics_menu(self):
         print('1.Failing')
         print('2.Best Grades')
+        print('3.Discipline Stats')
         choice = input('>')
         if choice == '1':
-            search = input('>')
-            # TODO call service search
+            _list = self.service.failing()
+            self.print_stats(_list)
         elif choice == '2':
-            search = input('>')
-            # TODO call service search
+            _list = self.service.best_stats()
+            self.print_stats(_list)
+        elif choice == '3':
+            _list = self.service.discipline_stats()
+            self.print_stats(_list)
         else:
             raise IOErr('Bad Choice.')
 
@@ -214,5 +243,5 @@ class UI:
 student_service = StudentService()
 discipline_service = DisciplineService()
 grade_service = GradeService()
-ui = UI(None, student_service, discipline_service, grade_service)
+ui = UI(student_service, discipline_service, grade_service)
 ui.start()
