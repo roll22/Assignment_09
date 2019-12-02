@@ -326,6 +326,8 @@ class Service:
         return sorted(final_averages, key=lambda avg: avg[1], reverse=True)
 
     def stack_care(self, _list):
+        if not _list:
+            raise IOErr
         if self.flag:
             self.redo_stack.clear()
         self.undo_stack.append(_list)
@@ -342,7 +344,6 @@ class Service:
             self.discipline_service.remove: self.add_discipline,
             self.grade_service.remove_by_student_id: self.add_multiple_grades,
             self.grade_service.remove_by_discipline_id: self.add_multiple_grades,
-
         }
 
         if len(self.undo_stack) == 0:
@@ -366,7 +367,6 @@ class Service:
             self.discipline_service.remove: self.remove_discipline,
             self.grade_service.remove_by_student_id: self.remove_multiple_grades,
             self.grade_service.remove_by_discipline_id: self.remove_multiple_grades,
-
         }
         if len(self.redo_stack) == 0:
             raise IOErr("Out of redos!")

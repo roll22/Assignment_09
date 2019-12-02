@@ -81,7 +81,3 @@ class StudentGUI:
             txt += st.getId().ljust(5) + st.getName().ljust(15) + str(st.getAdr())
             txt += "\n"
         messagebox.showinfo("List students", txt)
-
-ctrl = None
-ui = StudentGUI(ctrl)
-ui.startUI()
