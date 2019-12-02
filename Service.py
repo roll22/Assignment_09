@@ -11,6 +11,9 @@ class StudentService:
     def __init__(self):
         self._repo = StudentRepository()
 
+    def add_obj(self, obj):
+        self._repo.add(obj)
+
     def add(self, name):
         """
         Makes validations, creates the object and calls the repo Add
@@ -18,7 +21,9 @@ class StudentService:
         """
         if not name.isalpha():
             raise IOErr("name must be literal")
-        self._repo.add(Student(name))
+        obj = Student(name)
+        self._repo.add(obj)
+        return obj
 
     def remove(self, name):
         """
@@ -33,7 +38,7 @@ class StudentService:
             if student.name == name:
                 stud_id = student.get_id()
                 self._repo.remove(index=idx)
-                return stud_id
+                return student
 
     def count_occurence(self, name):
         """
@@ -59,11 +64,14 @@ class StudentService:
         for idx, student in enumerate(_list):
             if student.name == name:
                 student.name = new_name
+                break
+        return name, new_name
 
     def display(self):
         return self._repo.get_list()
 
     def search(self, match):
+        match = '^' + match
         returns = []
         _list = self._repo.get_list()
         for idx, student in enumerate(_list):
@@ -76,6 +84,9 @@ class DisciplineService:
     def __init__(self):
         self._repo = DisciplineRepository()
 
+    def add_obj(self, obj):
+        self._repo.add(obj)
+
     def add(self, name):
         """
         Makes validations, creates the object and calls the repo Add
@@ -83,7 +94,9 @@ class DisciplineService:
         """
         if not name.isalpha():
             raise IOErr("name must be literal")
-        self._repo.add(Discipline(name))
+        obj = Discipline(name)
+        self._repo.add(obj)
+        return obj
 
     def remove(self, name):
         """
@@ -98,7 +111,7 @@ class DisciplineService:
             if discipline.name == name:
                 disc_id = discipline.get_id()
                 self._repo.remove(index=idx)
-                return disc_id
+                return discipline
 
     def count_occurence(self, name):
         """
@@ -124,11 +137,14 @@ class DisciplineService:
         for idx, discipline in enumerate(_list):
             if discipline.name == name:
                 discipline.name = new_name
+                break
+        return name, new_name
 
     def display(self):
         return self._repo.get_list()
 
     def search(self, match):
+        match = '^' + match
         returns = []
         _list = self._repo.get_list()
         for idx, discipline in enumerate(_list):
@@ -149,25 +165,36 @@ class GradeService:
         for grade in grades:
             self._repo.add(Grade(student_id, discipline_id, grade))
 
+    def remove(self, discipline_id, student_id, grade_val):
+        _list = self._repo.get_list()
+        returnable = None
+        for idx, grade in enumerate(_list):
+            if grade.student_id == student_id and grade.discipline_id == discipline_id and grade.grade_value == grade_val:
+                returnable = grade
+                self._repo.remove(idx)
+        return returnable
+
     def remove_by_student_id(self, stud_id):
         _list = self._repo.get_list()
         to_delete = []
         for idx, grade in enumerate(_list):
             if grade.student_id == stud_id:
-                to_delete.append(idx)
+                to_delete.append([idx, grade])
         for offset, idx in enumerate(to_delete):
-            idx -= offset
-            self._repo.remove(idx)
+            self._repo.remove(idx[0] - offset)
+        returnable = list(x[1] for x in to_delete)
+        return returnable
 
     def remove_by_discipline_id(self, disc_id):
         _list = self._repo.get_list()
         to_delete = []
         for idx, grade in enumerate(_list):
-            if grade.student_id == disc_id:
-                to_delete.append(idx)
+            if grade.discipline_id == disc_id:
+                to_delete.append([idx, grade])
         for offset, idx in enumerate(to_delete):
-            idx -= offset
-            self._repo.remove(idx)
+            self._repo.remove(idx[0] - offset)
+        returnable = list(x[1] for x in to_delete)
+        return returnable
 
     def display(self):
         return self._repo.get_list()
@@ -179,6 +206,9 @@ class Service:
         self.student_service = student_serv
         self.discipline_service = discipline_serv
         self.grade_service = grade_serv
+        self.undo_stack = []
+        self.redo_stack = []
+        self.flag = False
 
     def initialize_repos(self):
         names = [
@@ -294,3 +324,99 @@ class Service:
             if count_ != 0:
                 final_averages.append([discipline, sum_ / count_])
         return sorted(final_averages, key=lambda avg: avg[1], reverse=True)
+
+    def stack_care(self, _list):
+        if self.flag:
+            self.redo_stack.clear()
+        self.undo_stack.append(_list)
+        self.flag = False
+
+    def undo(self):
+        func_map = {
+            self.student_service.add: self.remove_student,
+            self.discipline_service.add: self.remove_discipline,
+            self.student_service.update: self.update_student_undo,
+            self.discipline_service.update: self.update_discipline_undo,
+            self.grade_service.add: self.remove_grade,
+            self.student_service.remove: self.add_student,
+            self.discipline_service.remove: self.add_discipline,
+            self.grade_service.remove_by_student_id: self.add_multiple_grades,
+            self.grade_service.remove_by_discipline_id: self.add_multiple_grades,
+
+        }
+
+        if len(self.undo_stack) == 0:
+            raise IOErr("Out of undos!")
+        _list = self.undo_stack.pop(-1)
+        for operation in _list:
+            func = func_map[operation[0]]
+            obj = operation[1]
+            func(obj)
+        self.redo_stack.append(_list)
+        self.flag = True
+
+    def redo(self):
+        func_map = {
+            self.student_service.add: self.add_student,
+            self.discipline_service.add: self.add_discipline,
+            self.student_service.update: self.update_student_redo,
+            self.discipline_service.update: self.update_discipline_redo,
+            self.grade_service.add: self.add_grade,
+            self.student_service.remove: self.remove_student,
+            self.discipline_service.remove: self.remove_discipline,
+            self.grade_service.remove_by_student_id: self.remove_multiple_grades,
+            self.grade_service.remove_by_discipline_id: self.remove_multiple_grades,
+
+        }
+        if len(self.redo_stack) == 0:
+            raise IOErr("Out of redos!")
+        _list = self.redo_stack.pop(-1)
+        for operation in _list:
+            func = func_map[operation[0]]
+            obj = operation[1]
+            func(obj)
+
+        self.undo_stack.append(_list)
+
+    # custom functions
+    # they call the functions from the service, they only edit the params
+
+    def add_student(self, obj):
+        self.student_service.add_obj(obj)
+
+    def remove_student(self, obj):
+        self.student_service.remove(obj.name)
+
+    def add_discipline(self, obj):
+        self.discipline_service.add_obj(obj)
+
+    def remove_discipline(self, obj):
+        self.discipline_service.remove(obj.name)
+
+    def update_student_undo(self, obj):
+        self.student_service.update(obj[1], obj[0])
+
+    def update_student_redo(self, obj):
+        self.student_service.update(obj[0], obj[1])
+
+    def update_discipline_undo(self, obj):
+        self.discipline_service.update(obj[1], obj[0])
+
+    def update_discipline_redo(self, obj):
+        self.discipline_service.update(obj[0], obj[1])
+
+    def add_grade(self, obj):
+        self.grade_service.add(obj[0], obj[1], obj[2])
+
+    def remove_grade(self, obj):
+        for x in range(len(obj[2])):
+            self.grade_service.remove(obj[0], obj[1], obj[2][x])
+
+    def add_multiple_grades(self, obj):
+        for grade in obj:
+            self.grade_service.add(grade.discipline_id, grade.student_id, [grade.grade_value])
+
+    def remove_multiple_grades(self, obj):
+        for grade in obj:
+            self.grade_service.remove(grade.discipline_id, grade.student_id, grade.grade_value)
+

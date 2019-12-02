@@ -42,6 +42,7 @@ class DomainTest(unittest.TestCase):
             obj.grade_value = StudentError('da')
         with self.assertRaises(GradeError):
             obj.grade_value = 11
+        self.assertEqual(obj.__str__(), str(obj.grade_value))
 
 
 class ServiceTest(unittest.TestCase):
@@ -57,7 +58,7 @@ class ServiceTest(unittest.TestCase):
         obj.best_stats()
         self.assertEqual(len(obj.grade_service.display()), 20)
         obj.discipline_stats()
-        
+
 
     def test_StudentService(self):
         obj = StudentService()

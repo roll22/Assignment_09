@@ -70,10 +70,12 @@ class UI:
         choice = input('>')
         if choice == '1':
             name = input('input name>')
-            student_service.add(name=name)
+            obj = student_service.add(name=name)
+            self.service.stack_care([[student_service.add, obj]])
         elif choice == '2':
             name = input('input discipline>')
-            discipline_service.add(name=name)
+            obj = discipline_service.add(name=name)
+            self.service.stack_care([[discipline_service.add, obj]])
         else:
             raise IOErr('Bad choice!')
 
@@ -83,12 +85,18 @@ class UI:
         choice = input('>')
         if choice == '1':
             name = input('Name>')
-            stud_id = student_service.remove(name=name)
-            grade_service.remove_by_student_id(stud_id)
+            obj = student_service.remove(name=name)
+            _list_of_deleted_grades = grade_service.remove_by_student_id(obj.get_id())
+            self.service.stack_care(
+                [[student_service.remove, obj], [grade_service.remove_by_student_id, _list_of_deleted_grades]]
+            )
         elif choice == '2':
             discipline = input('Discipline>')
-            disc_id = discipline_service.remove(name=discipline)
-            grade_service.remove_by_discipline_id(disc_id)
+            obj = discipline_service.remove(name=discipline)
+            _list_of_deleted_grades = grade_service.remove_by_discipline_id(obj.get_id())
+            self.service.stack_care(
+                [[discipline_service.remove, obj], [grade_service.remove_by_discipline_id, _list_of_deleted_grades]]
+            )
         else:
             raise IOErr('Bad choice!')
 
@@ -100,14 +108,16 @@ class UI:
             name = input('Name>')
             if student_service.count_occurence(name=name) > 0:
                 new_name = input('Input new value >')
-                student_service.update(name, new_name)
+                obj = list(student_service.update(name, new_name))
+                self.service.stack_care([[student_service.update, obj]])
             else:
                 raise IOErr("Student not found")
         elif choice == '2':
             name = input('Discipline >')
             if discipline_service.count_occurence(name=name) > 0:
                 new_name = input('Input new value >')
-                discipline_service.update(name, new_name)
+                obj = list(discipline_service.update(name, new_name))
+                self.service.stack_care([[discipline_service.update, obj]])
             else:
                 raise IOErr("Discipline not found")
         else:
@@ -151,10 +161,10 @@ class UI:
         grades = grades.split()
         try:
             final_grades = list(int(value) for value in grades)
-            print(final_grades)
         except Exception:
             raise IOErr('Bad Grades!')
         grade_service.add(disc_id, student_id, final_grades)
+        self.service.stack_care([[grade_service.add, [disc_id, student_id, final_grades]]])
 
     def search_menu(self):
         print('1.Search Students')
@@ -185,7 +195,7 @@ class UI:
     def print_grades(self, _list):
         for x in _list:
             print("stud_id: " + str(x.student_id) +
-                  " disc_id: " + str(x.discipline_id)+
+                  " disc_id: " + str(x.discipline_id) +
                   " grade: " + str(x.grade_value))
 
     def statistics_menu(self):
@@ -206,10 +216,10 @@ class UI:
             raise IOErr('Bad Choice.')
 
     def undo(self):
-        pass
+        self.service.undo()
 
     def redo(self):
-        pass
+        self.service.redo()
 
     def return_cmd(self, choice):
         commands = {
@@ -237,9 +247,17 @@ class UI:
         self.print_main()
         choice = self.read_choice()
         self.return_cmd(choice)()
+        if choice in [
+            '1',
+            '2',
+            '3',
+            '5',
+            '1',
+
+        ]:
+            pass
 
 
-# general_service = Service()
 student_service = StudentService()
 discipline_service = DisciplineService()
 grade_service = GradeService()
