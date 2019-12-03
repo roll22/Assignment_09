@@ -1,10 +1,7 @@
-from Service import StudentService, DisciplineService, GradeService, Service
 from sys import exit
-import random
 
-
-class IOErr(Exception):
-    pass
+from UI.IOErr import IOErr
+from controller.MainController import Service
 
 
 class UI:
@@ -70,12 +67,12 @@ class UI:
         choice = input('>')
         if choice == '1':
             name = input('input name>')
-            obj = student_service.add(name=name)
-            self.service.stack_care([[student_service.add, obj]])
+            obj = self.student_service.store(name=name)
+            self.service.stack_care([[self.student_service.store, obj]])
         elif choice == '2':
             name = input('input discipline>')
-            obj = discipline_service.add(name=name)
-            self.service.stack_care([[discipline_service.add, obj]])
+            obj = self.discipline_service.store(name=name)
+            self.service.stack_care([[self.discipline_service.store, obj]])
         else:
             raise IOErr('Bad choice!')
 
@@ -85,17 +82,18 @@ class UI:
         choice = input('>')
         if choice == '1':
             name = input('Name>')
-            obj = student_service.remove(name=name)
-            _list_of_deleted_grades = grade_service.remove_by_student_id(obj.get_id())
+            obj = self.student_service.remove(name=name)
+            _list_of_deleted_grades = self.grade_service.remove_by_student_id(obj.get_id())
             self.service.stack_care(
-                [[student_service.remove, obj], [grade_service.remove_by_student_id, _list_of_deleted_grades]]
+                [[self.student_service.remove, obj], [self.grade_service.remove_by_student_id, _list_of_deleted_grades]]
             )
         elif choice == '2':
             discipline = input('Discipline>')
-            obj = discipline_service.remove(name=discipline)
-            _list_of_deleted_grades = grade_service.remove_by_discipline_id(obj.get_id())
+            obj = self.discipline_service.remove(name=discipline)
+            _list_of_deleted_grades = self.grade_service.remove_by_discipline_id(obj.get_id())
             self.service.stack_care(
-                [[discipline_service.remove, obj], [grade_service.remove_by_discipline_id, _list_of_deleted_grades]]
+                [[self.discipline_service.remove, obj],
+                 [self.grade_service.remove_by_discipline_id, _list_of_deleted_grades]]
             )
         else:
             raise IOErr('Bad choice!')
@@ -106,18 +104,18 @@ class UI:
         choice = input('>')
         if choice == '1':
             name = input('Name>')
-            if student_service.count_occurence(name=name) > 0:
+            if self.student_service.count_occurence(name=name) > 0:
                 new_name = input('Input new value >')
-                obj = list(student_service.update(name, new_name))
-                self.service.stack_care([[student_service.update, obj]])
+                obj = list(self.student_service.update(name, new_name))
+                self.service.stack_care([[self.student_service.update, obj]])
             else:
                 raise IOErr("Student not found")
         elif choice == '2':
             name = input('Discipline >')
-            if discipline_service.count_occurence(name=name) > 0:
+            if self.discipline_service.count_occurence(name=name) > 0:
                 new_name = input('Input new value >')
-                obj = list(discipline_service.update(name, new_name))
-                self.service.stack_care([[discipline_service.update, obj]])
+                obj = list(self.discipline_service.update(name, new_name))
+                self.service.stack_care([[self.discipline_service.update, obj]])
             else:
                 raise IOErr("Discipline not found")
         else:
@@ -129,31 +127,31 @@ class UI:
         print('3.Display by Grades')
         choice = input('>')
         if choice == '1':
-            _list = student_service.display()
+            _list = self.student_service.display()
             self.print_list(_list)
         elif choice == '2':
-            _list = discipline_service.display()
+            _list = self.discipline_service.display()
             self.print_list(_list)
         elif choice == '3':
-            _list = grade_service.display()
+            _list = self.grade_service.display()
             self.print_grades(_list)
         else:
             raise IOErr('Bad choice!')
 
     def grade_menu(self):
         discipline = input('Discipline>')
-        if not discipline_service.count_occurence(discipline) > 0:
+        if not self.discipline_service.count_occurence(discipline) > 0:
             raise IOErr('Discipline not Found!')
         disc_id = None
-        for _discipline in discipline_service.display():
+        for _discipline in self.discipline_service.display():
             if _discipline.name == discipline:
                 disc_id = _discipline.get_id()
                 break
         name = input('Name>')
-        if not student_service.count_occurence(name) > 0:
+        if not self.student_service.count_occurence(name) > 0:
             raise IOErr('Student not Found!')
         student_id = None
-        for student in student_service.display():
+        for student in self.student_service.display():
             if student.name == name:
                 student_id = student.get_id()
                 break
@@ -163,8 +161,8 @@ class UI:
             final_grades = list(int(value) for value in grades)
         except Exception:
             raise IOErr('Bad Grades!')
-        grade_service.add(disc_id, student_id, final_grades)
-        self.service.stack_care([[grade_service.add, [disc_id, student_id, final_grades]]])
+        self.grade_service.store(disc_id, student_id, final_grades)
+        self.service.stack_care([[self.grade_service.store, [disc_id, student_id, final_grades]]])
 
     def search_menu(self):
         print('1.Search Students')
@@ -172,10 +170,10 @@ class UI:
         choice = input('>')
         if choice == '1':
             search = input('>')
-            self.print_search(student_service.search(search))
+            self.print_search(self.student_service.search(search))
         elif choice == '2':
             search = input('>')
-            self.print_search(discipline_service.search(search))
+            self.print_search(self.discipline_service.search(search))
         else:
             raise IOErr('Bad Choice.')
 
@@ -184,7 +182,8 @@ class UI:
         for item in printable_list:
             print(item[0], item[1])
 
-    def print_stats(self, _list):
+    @staticmethod
+    def print_stats(_list):
         for elem in _list:
             printable = ''
             for small_elem in elem:
@@ -192,7 +191,8 @@ class UI:
                 printable += ' '
             print(printable)
 
-    def print_grades(self, _list):
+    @staticmethod
+    def print_grades(_list):
         for x in _list:
             print("stud_id: " + str(x.student_id) +
                   " disc_id: " + str(x.discipline_id) +
@@ -256,10 +256,3 @@ class UI:
 
         ]:
             pass
-
-
-student_service = StudentService()
-discipline_service = DisciplineService()
-grade_service = GradeService()
-ui = UI(student_service, discipline_service, grade_service)
-ui.start()

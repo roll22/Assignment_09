@@ -1,0 +1,2 @@
+class IOErr(Exception):
+    pass
