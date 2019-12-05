@@ -1,18 +1,17 @@
 import re
 
 from domain.Student import Student
-from repository_module.StudentRepository import StudentRepository
 from controller.IOErr import IOErr
 
 
 class StudentService:
-    def __init__(self):
-        self._repo = StudentRepository()
+    def __init__(self, repo):
+        self._repo = repo
 
     def add_obj(self, obj):
         self._repo.store(obj)
 
-    def store(self, name):
+    def add(self, name):
         """
         Makes validations, creates the object and calls the repo Add
         :raises: IOErr

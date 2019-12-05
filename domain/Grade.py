@@ -47,3 +47,11 @@ class Grade:
 
     def __str__(self):
         return str(self.grade_value)
+
+    def __dict__(self):
+        grade_dict = {
+            'student_id': self.student_id,
+            'discipline_id': self.discipline_id,
+            'grade_value': self.grade_value,
+        }
+        return grade_dict

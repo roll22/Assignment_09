@@ -9,6 +9,12 @@ class Student:
         self._id = uuid.uuid1().hex
         self.name = name
 
+    @staticmethod
+    def create_from_data(name, id):
+        obj = Student(name)
+        obj._id = id
+        return obj
+
     def get_id(self):
         return self._id
 
@@ -27,10 +33,9 @@ class Student:
     def __str__(self):
         return self.name
 
-    """ `
-    def student_to_dict(self):
+    def __dict__(self):
         stud_dict = {
             '_id': self._id,
-            'value': self.name
+            'name': self.name
         }
-    """
+        return stud_dict

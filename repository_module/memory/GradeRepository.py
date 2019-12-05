@@ -1,4 +1,4 @@
-from repository_module.Repository import Repository
+from repository_module.memory.Repository import Repository
 
 
 class GradeRepository(Repository):

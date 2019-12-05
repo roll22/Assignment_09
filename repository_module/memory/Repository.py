@@ -5,12 +5,12 @@ class Repository:
     def __init__(self):
         self._list = []
 
-    def store(self, object):
+    def store(self, obj):
         """
         Adds an object to the list
-        :param object:
+        :param obj:
         """
-        self._list.append(object)
+        self._list.append(obj)
 
     def remove(self, index):
         """

@@ -5,10 +5,10 @@ from controller.GradeController import GradeService
 from controller.DisciplineController import DisciplineService
 from controller.StudentController import StudentService
 from controller.IOErr import IOErr
-from repository_module.Repository import Repository
-from repository_module.StudentRepository import StudentRepository
-from repository_module.DisciplineRepository import DisciplineRepository
-from repository_module.GradeRepository import GradeRepository
+from repository_module.memory.Repository import Repository
+from repository_module.memory.StudentRepository import StudentRepository
+from repository_module.memory.DisciplineRepository import DisciplineRepository
+from repository_module.memory.GradeRepository import GradeRepository
 from repository_module.RepoErr import RepoErr
 from domain.Grade import Grade
 from domain.Discipline import Discipline
@@ -80,8 +80,8 @@ class ServiceTest(unittest.TestCase):
         obj.undo_stack.clear()
         with self.assertRaises(IOErr):
             obj.undo()
-        objet = obj.student_service.store('rollo')
-        obj.stack_care([[obj.student_service.store, objet]])
+        objet = obj.student_service.add('rollo')
+        obj.stack_care([[obj.student_service.add, objet]])
         obj.undo()
         self.assertEqual(len(obj.student_service.display()), 10)
         obj.redo()
@@ -89,8 +89,8 @@ class ServiceTest(unittest.TestCase):
         self.assertEqual(len(obj.student_service.display()), 11)
         with self.assertRaises(IOErr):
             obj.redo()
-        objet = obj.discipline_service.store('matiee')
-        obj.stack_care([[obj.discipline_service.store, objet]])
+        objet = obj.discipline_service.add('matiee')
+        obj.stack_care([[obj.discipline_service.add, objet]])
         self.assertEqual(len(obj.discipline_service.display()), 11)
         obj.undo()
         self.assertEqual(len(obj.discipline_service.display()), 10)
@@ -104,8 +104,8 @@ class ServiceTest(unittest.TestCase):
         obj.stack_care([[obj.discipline_service.update, objet]])
         obj.undo()
         obj.redo()
-        obj.grade_service.store('discipline_id_test', 'student_id_test', [1, 2, 3])
-        obj.stack_care([[obj.grade_service.store, ['discipline_id_test', 'student_id_test', [1, 2, 3]]]])
+        obj.grade_service.add('discipline_id_test', 'student_id_test', [1, 2, 3])
+        obj.stack_care([[obj.grade_service.add, ['discipline_id_test', 'student_id_test', [1, 2, 3]]]])
         obj.undo()
         obj.redo()
         objet = obj.student_service.remove('Andrei')
@@ -119,47 +119,47 @@ class ServiceTest(unittest.TestCase):
         obj = StudentService()
         self.assertIsInstance(obj._repo, StudentRepository)
         with self.assertRaises(IOErr):
-            obj.store('12sdasdf')
-        obj.store('marcus')
+            obj.add('12sdasdf')
+        obj.add('marcus')
         self.assertEqual(obj._repo._list[-1].name, 'marcus')
         with self.assertRaises(IOErr):
             obj.remove('12sdf')
         obj.remove('marcus')
         self.assertEqual(len(obj._repo._list), 0)
-        obj.store('marcus')
+        obj.add('marcus')
         self.assertEqual(obj.count_occurence('marcus'), 1)
         obj.update('marcus', 'Joemamma')
         self.assertEqual(obj.count_occurence('Joemamma'), 1)
         self.assertEqual(obj.count_occurence('marcus'), 0)
         self.assertEqual(obj.display(), obj._repo.get_list())
-        obj.store('marcus')
-        obj.store('marcusA')
+        obj.add('marcus')
+        obj.add('marcusA')
         self.assertEqual(len(obj.search('marc')), 2)
 
     def test_DisciplineService(self):
         obj = DisciplineService()
         self.assertIsInstance(obj._repo, DisciplineRepository)
         with self.assertRaises(IOErr):
-            obj.store('12sdf')
-        obj.store('Mathabc')
+            obj.add('12sdf')
+        obj.add('Mathabc')
         with self.assertRaises(IOErr):
             obj.remove('12sdfasdf')
         obj.remove('Mathabc')
         self.assertEqual(len(obj.display()), 0)
-        obj.store('Math')
+        obj.add('Math')
         self.assertEqual(obj.count_occurence('Math'), 1)
         obj.update('Math', 'Mathtastic')
         self.assertEqual(obj.count_occurence('Mathtastic'), 1)
         self.assertEqual(obj.count_occurence('Math'), 0)
         self.assertEqual(obj.display(), obj._repo.get_list())
-        obj.store('marcus')
-        obj.store('marcusA')
+        obj.add('marcus')
+        obj.add('marcusA')
         self.assertEqual(len(obj.search('marc')), 2)
 
     def test_GradeService(self):
         obj = GradeService()
         self.assertIsInstance(obj._repo, GradeRepository)
-        obj.store('discipline_id_test', 'student_id_test', [1, 2, 3])
+        obj.add('discipline_id_test', 'student_id_test', [1, 2, 3])
         self.assertEqual(obj.display()[-3].student_id, 'student_id_test')
         self.assertEqual(obj.display()[-3].discipline_id, 'discipline_id_test')
         self.assertEqual(obj.display()[-3].grade_value, 1)
@@ -171,10 +171,10 @@ class ServiceTest(unittest.TestCase):
         self.assertEqual(obj.display()[-1].grade_value, 3)
         obj.remove_by_student_id('student_id_test')
         self.assertEqual(len(obj.display()), 0)
-        obj.store('discipline_id_test', 'student_id_test', [1, 2, 3])
+        obj.add('discipline_id_test', 'student_id_test', [1, 2, 3])
         obj.remove_by_discipline_id('discipline_id_test')
         self.assertEqual(len(obj.display()), 0)
-        obj.store('discipline_id_test', 'student_id_test', [1, 2, 3])
+        obj.add('discipline_id_test', 'student_id_test', [1, 2, 3])
         obj.remove('discipline_id_test', 'student_id_test', 1)
         self.assertEqual(len(obj.display()), 2)
 

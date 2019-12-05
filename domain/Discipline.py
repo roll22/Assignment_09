@@ -26,3 +26,16 @@ class Discipline:
 
     def __str__(self):
         return self.name
+
+    @classmethod
+    def create_from_data(cls, name, id):
+        obj = Discipline(name)
+        obj._id = id
+        return obj
+
+    def __dict__(self):
+        disc_dict = {
+            '_id': self._id,
+            'name': self.name
+        }
+        return disc_dict

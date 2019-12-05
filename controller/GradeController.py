@@ -1,12 +1,11 @@
 from domain.Grade import Grade
-from repository_module.GradeRepository import GradeRepository
 
 
 class GradeService:
-    def __init__(self):
-        self._repo = GradeRepository()
+    def __init__(self, repo):
+        self._repo = repo
 
-    def store(self, discipline_id, student_id, grades):
+    def add(self, discipline_id, student_id, grades):
         """
         Creates the object and calls the repo Add
         :raises: IOErr

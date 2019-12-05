@@ -5,12 +5,11 @@ from controller.MainController import Service
 
 
 class UI:
-    def __init__(self, stud_svc, disc_svc, grade_svc):
+    def __init__(self, main_svc, stud_svc, disc_svc, grade_svc):
         self._stud = stud_svc
         self._disc = disc_svc
         self._grad = grade_svc
-        self._service = Service(stud_svc, disc_svc, grade_svc)
-        self.service.initialize_repos()
+        self._service = main_svc
 
     @property
     def service(self):
@@ -67,12 +66,12 @@ class UI:
         choice = input('>')
         if choice == '1':
             name = input('input name>')
-            obj = self.student_service.store(name=name)
-            self.service.stack_care([[self.student_service.store, obj]])
+            obj = self.student_service.add(name=name)
+            self.service.stack_care([[self.student_service.add, obj]])
         elif choice == '2':
             name = input('input discipline>')
-            obj = self.discipline_service.store(name=name)
-            self.service.stack_care([[self.discipline_service.store, obj]])
+            obj = self.discipline_service.add(name=name)
+            self.service.stack_care([[self.discipline_service.add, obj]])
         else:
             raise IOErr('Bad choice!')
 
@@ -161,8 +160,8 @@ class UI:
             final_grades = list(int(value) for value in grades)
         except Exception:
             raise IOErr('Bad Grades!')
-        self.grade_service.store(disc_id, student_id, final_grades)
-        self.service.stack_care([[self.grade_service.store, [disc_id, student_id, final_grades]]])
+        self.grade_service.add(disc_id, student_id, final_grades)
+        self.service.stack_care([[self.grade_service.add, [disc_id, student_id, final_grades]]])
 
     def search_menu(self):
         print('1.Search Students')

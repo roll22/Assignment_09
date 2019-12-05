@@ -25,7 +25,7 @@ class Service:
             "Balaur",
         ]
         for name in names:
-            self.student_service.store(name)
+            self.student_service.add(name)
         disciplines = [
             "Algebra",
             "Analiza",
@@ -39,14 +39,14 @@ class Service:
             "Fotografie",
         ]
         for discipline in disciplines:
-            self.discipline_service.store(discipline)
+            self.discipline_service.add(discipline)
 
         for x in range(20):
             import random
             random_student = self.student_service.display()[random.randint(0, 9)].get_id()
             random_discipline = self.discipline_service.display()[random.randint(0, 9)].get_id()
             random_grade = random.randint(1, 10)
-            self.grade_service.store(discipline_id=random_discipline, student_id=random_student, grades=[random_grade])
+            self.grade_service.add(discipline_id=random_discipline, student_id=random_student, grades=[random_grade])
 
     def failing(self):
         failed_students = []
@@ -136,11 +136,11 @@ class Service:
 
     def undo(self):
         func_map = {
-            self.student_service.store: self.remove_student,
-            self.discipline_service.store: self.remove_discipline,
+            self.student_service.add: self.remove_student,
+            self.discipline_service.add: self.remove_discipline,
             self.student_service.update: self.update_student_undo,
             self.discipline_service.update: self.update_discipline_undo,
-            self.grade_service.store: self.remove_grade,
+            self.grade_service.add: self.remove_grade,
             self.student_service.remove: self.add_student,
             self.discipline_service.remove: self.add_discipline,
             self.grade_service.remove_by_student_id: self.add_multiple_grades,
@@ -159,11 +159,11 @@ class Service:
 
     def redo(self):
         func_map = {
-            self.student_service.store: self.add_student,
-            self.discipline_service.store: self.add_discipline,
+            self.student_service.add: self.add_student,
+            self.discipline_service.add: self.add_discipline,
             self.student_service.update: self.update_student_redo,
             self.discipline_service.update: self.update_discipline_redo,
-            self.grade_service.store: self.add_grade,
+            self.grade_service.add: self.add_grade,
             self.student_service.remove: self.remove_student,
             self.discipline_service.remove: self.remove_discipline,
             self.grade_service.remove_by_student_id: self.remove_multiple_grades,
@@ -207,7 +207,7 @@ class Service:
         self.discipline_service.update(obj[0], obj[1])
 
     def add_grade(self, obj):
-        self.grade_service.store(obj[0], obj[1], obj[2])
+        self.grade_service.add(obj[0], obj[1], obj[2])
 
     def remove_grade(self, obj):
         for x in range(len(obj[2])):
@@ -215,7 +215,7 @@ class Service:
 
     def add_multiple_grades(self, obj):
         for grade in obj:
-            self.grade_service.store(grade.discipline_id, grade.student_id, [grade.grade_value])
+            self.grade_service.add(grade.discipline_id, grade.student_id, [grade.grade_value])
 
     def remove_multiple_grades(self, obj):
         for grade in obj:

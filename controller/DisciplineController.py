@@ -1,18 +1,17 @@
 import re
 
 from domain.Discipline import Discipline
-from repository_module.DisciplineRepository import DisciplineRepository
 from controller.IOErr import IOErr
 
 
 class DisciplineService:
-    def __init__(self):
-        self._repo = DisciplineRepository()
+    def __init__(self, repo):
+        self._repo = repo
 
     def add_obj(self, obj):
         self._repo.store(obj)
 
-    def store(self, name):
+    def add(self, name):
         """
         Makes validations, creates the object and calls the repo Add
         :raises: IOErr
@@ -34,7 +33,6 @@ class DisciplineService:
         _list = self._repo.get_list()
         for idx, discipline in enumerate(_list):
             if discipline.name == name:
-                disc_id = discipline.get_id()
                 self._repo.remove(index=idx)
                 return discipline
 
