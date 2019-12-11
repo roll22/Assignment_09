@@ -6,4 +6,6 @@ class GradeRepository(Repository):
         super().__init__()
 
     def update(self, index, value):
+        obj =self._list[index]
         self._list[index].grade_value = value
+        return obj

@@ -7,14 +7,14 @@ class DisciplineRepositoryBinary(DisciplineRepository):
     def __init__(self, path):
         super().__init__()
         self._path = path
-        self._load_file()
+        try:
+            self._load_file()
+        except Exception:
+            pass
 
     def _load_file(self):
         file = open(self._path, "rb")
-        try:
-            self._list = pickle.load(file)
-        except Exception:
-            pass
+        self._list = pickle.load(file)
         file.close()
 
     def _save_file(self):
@@ -35,3 +35,4 @@ class DisciplineRepositoryBinary(DisciplineRepository):
         ret = super().update(index, value)
         self._save_file()
         return ret
+

@@ -7,7 +7,10 @@ class StudentRepositoryBinary(StudentRepository):
     def __init__(self, path):
         super().__init__()
         self._path = path
-        self._load_file()
+        try:
+            self._load_file()
+        except Exception:
+            pass
 
     def _load_file(self):
         file = open(self._path, "rb")

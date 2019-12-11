@@ -41,6 +41,6 @@ class DisciplineRepositoryJSON(DisciplineRepository):
         with open(self._path, 'w') as outfile:
             main = {'disciplines': []}
             for obj in self._list:
-                main['disciplines'].append(obj.__dict__())
+                main['disciplines'].append(obj.to_dict())
             json.dump(main, outfile)
             outfile.close()

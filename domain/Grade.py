@@ -48,7 +48,7 @@ class Grade:
     def __str__(self):
         return str(self.grade_value)
 
-    def __dict__(self):
+    def to_dict(self):
         grade_dict = {
             'student_id': self.student_id,
             'discipline_id': self.discipline_id,

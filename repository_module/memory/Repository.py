@@ -19,7 +19,7 @@ class Repository:
         :param index:
         """
         try:
-            self._list.pop(index)
+            return self._list.pop(index)
         except Exception:
             raise RepoErr("Object Not Found!")
 
@@ -32,7 +32,9 @@ class Repository:
         :param value:
         """
         try:
+            obj = self._list[index]
             self._list[index].name = value
+            return obj
         except Exception:
             raise RepoErr("Object not found!")
 

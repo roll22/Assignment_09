@@ -1,5 +1,3 @@
-import javaproperties
-
 from UI.ConsoleUI import UI
 from controller.DisciplineController import DisciplineService
 from controller.GradeController import GradeService
@@ -7,7 +5,7 @@ from controller.MainController import Service
 from controller.StudentController import StudentService
 from settings.Setup import Setup
 
-setting = 'settings/json_settings.properties'
+setting = 'settings/memory_settings.properties'
 setup = Setup(setting)
 
 student_repo = setup.set_student_repo()

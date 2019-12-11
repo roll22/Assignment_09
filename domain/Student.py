@@ -33,7 +33,7 @@ class Student:
     def __str__(self):
         return self.name
 
-    def __dict__(self):
+    def to_dict(self):
         stud_dict = {
             '_id': self._id,
             'name': self.name

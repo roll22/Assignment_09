@@ -42,6 +42,6 @@ class GradeRepositoryJSON(GradeRepository):
         with open(self._path, 'w') as outfile:
             main = {'grades': []}
             for obj in self._list:
-                main['grades'].append(obj.__dict__())
+                main['grades'].append(obj.to_dict())
             json.dump(main, outfile)
             outfile.close()

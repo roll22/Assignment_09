@@ -41,6 +41,6 @@ class StudentRepositoryJSON(StudentRepository):
         with open(self._path, 'w') as outfile:
             main = {'students': []}
             for obj in self._list:
-                main['students'].append(obj.__dict__())
+                main['students'].append(obj.to_dict())
             json.dump(main, outfile)
             outfile.close()

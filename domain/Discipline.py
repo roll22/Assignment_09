@@ -33,7 +33,7 @@ class Discipline:
         obj._id = id
         return obj
 
-    def __dict__(self):
+    def to_dict(self):
         disc_dict = {
             '_id': self._id,
             'name': self.name

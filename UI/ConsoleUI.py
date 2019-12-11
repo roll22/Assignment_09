@@ -246,12 +246,3 @@ class UI:
         self.print_main()
         choice = self.read_choice()
         self.return_cmd(choice)()
-        if choice in [
-            '1',
-            '2',
-            '3',
-            '5',
-            '1',
-
-        ]:
-            pass
