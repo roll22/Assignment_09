@@ -17,6 +17,7 @@ discipline_service = DisciplineService(discipline_repo)
 grade_service = GradeService(grade_repo)
 main_service = Service(student_service, discipline_service, grade_service)
 
+
 if setting == 'settings/memory_settings.properties':
     main_service.initialize_repos()
 
